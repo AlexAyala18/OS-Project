@@ -9,7 +9,7 @@ Instructions:
 Declares the authenticateUser function.
 2. auth.cpp (Authentication Logic)
 Implements authenticateUser() to check username and password.
-Uses hardcoded credentials ("admin" and "password123").
+Uses hardcoded credentials ("12345" and "12345").
 3. main.cpp (Main Logic)
 Handles user input and authentication.
 Implements:
