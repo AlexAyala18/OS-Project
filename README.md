@@ -16,7 +16,7 @@ Implements:
 drawUI() → Displays username/password input fields.
 showLoadingAnimation() → Displays a "Loading..." animation
 
-How To....
+
 The program starts and displays a login prompt.
 The user types their username and password:
 Password characters are hidden with *.
