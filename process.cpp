@@ -36,13 +36,13 @@ public:
     void execute() {
         if (state == READY && memory_required <= available_memory) {
             available_memory -= memory_required;  // Nvm I figured out how to make it easy. 
-            state = RUNNING;
+            //state = RUNNING;
         }
 
-        if (state == RUNNING) {
+        if (state == RUNNING||state == READY) {
 
             if (remaining_time > 0) {
-                //state = RUNNING;
+                state = RUNNING;
                 remaining_time--;
                 if (remaining_time == 0) {
                     state = TERMINATED;
@@ -50,10 +50,12 @@ public:
                     calculateTurnaroundTime();//only called when the process is finished. 
                 }
             }
+            //state == RUNNING;
         }
         else if (memory_required > available_memory && state == READY) {
             std::cout << "Not enough memory for Process " << pid << std::endl;//will fix want process to end auto
         }
+        
     }
 
     // Increments waiting time when the process is in the READY state
@@ -98,12 +100,14 @@ int main() {
     // Updating process states to READY
     p1.updateState(READY);//There is 2 because 2 processes were opened. //if not put first will not work.
     p2.updateState(READY);//always update the state before executing.
+    p1.displayProcessInfo();
 
     // Simulating execution of process p1 you can change the time to anything. 
     for (int i = 0; i < 8; i++) {
         p1.execute();
         p1.displayProcessInfo();
     }
+    p2.displayProcessInfo();//
 
     // Simulating execution of process p2
     for (int i = 0; i < 6; i++) {
