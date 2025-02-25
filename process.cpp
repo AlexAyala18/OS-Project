@@ -2,12 +2,16 @@
 #include <string>
 #include <vector>
 
+//set these process states as absolute, will return error for any other values
 enum ProcessState { NEW, READY, RUNNING, WAITING, TERMINATED };
 
+//sets system memory to 200, and sets initial available memory to system memory
 const int SYSTEM_MEMORY = 200;
 int available_memory = SYSTEM_MEMORY;
 
 class Process {
+
+//private data members
 private:
     int pid;
     int arrival_time;
@@ -17,37 +21,36 @@ private:
     int remaining_time;
     int waiting_time;
     int turnaround_time;
-    int memory_required;//we can add a memory counter and simulate a need for memory I created it but its not really used its just there
-    bool io_operations;//i'm not even gonna bother with having a seperate process be updated but we can if decided. its here if we do. 
+    int memory_required;
+    bool io_operations;
 
 public:
-    // Constructor to initialize process attributes this was made with google i never learned how to make proper constructors. 
+    // Constructor to initialize process attributes 
     Process(int pid, int arrival_time, int burst_time, int priority, int memory_required, bool io_operations)
         : pid(pid), arrival_time(arrival_time), burst_time(burst_time), priority(priority), state(NEW),
         remaining_time(burst_time), waiting_time(0), turnaround_time(0), memory_required(memory_required), io_operations(io_operations) {
     }
 
     // Updates the state of the process
-    void updateState(ProcessState new_state) {//this allows us to set the new state to anything. 
+    void updateState(ProcessState new_state) {
         state = new_state;
     }
 
     // Executes the process by decrementing remaining execution time
     void execute() {
-        if (state == NEW) {//just in case the user does not set it.
+        if (state == NEW) {//in case the user does not set it.
             state = READY;
             displayProcessInfo();
         }
+        //if there is enough memory, the process can run
         if (state == READY && memory_required <= available_memory) {
             displayProcessInfo();
-            available_memory -= memory_required;  // Nvm I figured out how to make it easy. 
+            available_memory -= memory_required; 
             state = RUNNING;
         }
-
+        //decrements the process if remaining time is greater then 0
         if (state == RUNNING || state == READY) {
-
             if (remaining_time > 0) {
-               
                 remaining_time--;
                 if (remaining_time == 0) {
                     state = TERMINATED;
@@ -55,29 +58,29 @@ public:
                     calculateTurnaroundTime();//only called when the process is finished. 
                 }
             }
-            
+
         }
         else if (memory_required > available_memory && state == READY) {
-            std::cout << "Not enough memory for Process " << pid << std::endl;//will fix want process to end auto
+            std::cout << "Not enough memory for Process " << pid << std::endl;
         }
 
     }
 
     // Increments waiting time when the process is in the READY state
-    void incrementWaitingTime() {//I made it but since we dont require looking into anything it won't be called this is for when io operations is true
+    void incrementWaitingTime() {
         if (state == READY) {
             waiting_time++;
         }
     }
 
     // Calculates turnaround time as the sum of waiting time and burst time
-    void calculateTurnaroundTime() {//calculated when the process is terminated. this could be wrong math need to verify
+    void calculateTurnaroundTime() {//calculated when the process is terminated
         turnaround_time = waiting_time + burst_time;
     }
 
-    // Displays process information including state, remaining time, waiting time, and turnaround time aka the menu or gui
-    void displayProcessInfo() const {//we can change it this was a first draft its not good. 
-        std::cout << "Process " << pid << " | State: " << stateToString(state)//this will return the string value of the state. 
+    // Displays process information
+    void displayProcessInfo() const {
+        std::cout << "Process " << pid << " | State: " << stateToString(state)//return the string value of the state. 
             << " | Remaining Time: " << remaining_time
             << " | Waiting Time: " << waiting_time
             << " | Turnaround Time: " << turnaround_time
@@ -85,12 +88,12 @@ public:
     }
 
     // Converts process state to a string
-    static std::string stateToString(ProcessState state) {//it does not read at sec == begining it skips the ready phase. 
+    static std::string stateToString(ProcessState state) {
         switch (state) {
-        case NEW: return "NEW";//just for when state is not clarified
-        case READY: return "READY";//i'll add it. 
+        case NEW: return "NEW";//for when state is not clarified
+        case READY: return "READY";
         case RUNNING: return "RUNNING";
-        case WAITING: return "WAITING";//its here if we need to implement but its currently not operational
+        case WAITING: return "WAITING";
         case TERMINATED: return "TERMINATED";
         default: return "UNKNOWN";
         }
@@ -103,16 +106,14 @@ int main() {
     Process p2(2, 1, 6, 2, 169, true);
 
     // Updating process states to READY
-    p1.updateState(READY);//There is 2 because 2 processes were opened. //if not put first will not work.
+    p1.updateState(READY);//There is 2 because 2 processes were opened.
     p2.updateState(READY);//always update the state before executing.
-    //p1.displayProcessInfo();
 
-    // Simulating execution of process p1 you can change the time to anything. 
+    // Simulating execution of process p1 
     for (int i = 0; i < 8; i++) {
         p1.execute();
         p1.displayProcessInfo();
     }
-    //p2.displayProcessInfo();//
 
     // Simulating execution of process p2
     for (int i = 0; i < 6; i++) {
@@ -122,12 +123,3 @@ int main() {
 
     return 0;
 }
-
-
-
-//Memory is operational 
-//IDK what PID does
-//state is being used 
-//remaining waiting and turnaround done. 
-//IDK how to do the IO operations one for the waiting time. 
-//arrival priority and burst times(except for turnaround) are not being used I'm using a countdown.  
