@@ -27,5 +27,17 @@ If correct, a loading animation appears (Loading...).
 If incorrect, an "Invalid Credentials!" message appears.
 The program exits after login.
 
-
+For our process, we used an enumeration for our ProcessState function
+so that our process state cannot take any other values except
+NEW, READY, RUNNING, WAITING, and TERMINATED. We also
+set our system memory as a constant int variable so that the value
+cannot be changed. In our process class, we had a constructor initialize 
+our process values, and defined in our class how our process functioned. 
+Essentially, our process would first test to see if there is enough available 
+system memory for the process to execute, which if there is, it executes 
+the READY state and displays the current process information such as proccess
+number, state, time remaining, etc. Then, it would transition to the running state, and
+then decrement the remaining time by 1, and this would repeat until
+the remaining time equals 0, which then the process would terminate and
+the next one would begin.
 
