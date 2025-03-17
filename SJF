@@ -1,0 +1,67 @@
+#include <iostream>
+using namespace std;
+
+struct Process {
+    int pid;
+    int arrivalTime;
+    int burstTime;
+    int completionTime;
+    int turnaroundTime;
+    int waitingTime;
+};
+
+void findSJF(Process proc[], int x) {
+    int remainingTime[x];
+    for (int i = 0; i < x; i++) {
+        remainingTime[i] = proc[i].burstTime;
+    }
+    int currentTime = 0;
+    int complete = 0;
+    int shortest = 0;
+    int minBurst = 9999;
+    while (complete < x) {
+        minBurst = 9999;
+        for (int i = 0; i < x; i++) {
+            if (proc[i].arrivalTime <= currentTime && remainingTime[i] < minBurst && remainingTime[i] > 0) {
+                minBurst = remainingTime[i];
+                shortest = i;
+            }
+        }
+        remainingTime[shortest]--;
+        if (remainingTime[shortest] == 0) {
+            complete++;
+            proc[shortest].completionTime = currentTime + 1;
+            proc[shortest].turnaroundTime = proc[shortest].completionTime - proc[shortest].arrivalTime;
+            proc[shortest].waitingTime = proc[shortest].turnaroundTime - proc[shortest].burstTime;
+        }
+        currentTime++;
+    }
+
+}
+
+void displayProcessDetails(Process proc[], int x) {
+    cout << "Process\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time" << endl;
+    for (int i = 0; i < x; i++) {
+        cout << proc[i].pid << "\t\t" << proc[i].arrivalTime << "\t\t" << proc[i].burstTime << "\t\t"
+            << proc[i].completionTime << "\t\t" << proc[i].turnaroundTime << "\t\t" << proc[i].waitingTime << endl;
+    }
+    cout << endl;
+}
+
+
+
+int main()
+{
+    int x = 5;
+    Process proc[x];
+    cout << "Enter process details (ID, Arrival Time, Burst Time)" << endl;
+    for (int i = 0; i < x; i++) {
+        cout << "Enter Process " << i << endl;
+        cin >> proc[i].pid >> proc[i].arrivalTime >> proc[i].burstTime;
+    }
+    findSJF(proc, x);
+    displayProcessDetails(proc, x);
+
+    return 0;
+}
+
