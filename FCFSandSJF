@@ -1,0 +1,131 @@
+#include <iostream>
+#include <algorithm> // For max
+#include <vector>//i started using vectors because I thought you used them in your sjf and I started with that one first i was too lazy to change it. 
+
+using namespace std;
+
+struct Process {
+    int pid;
+    int arrival_time;
+    int burst_time;
+    int completion_time;
+    int turnaround_time;
+    int waiting_time;
+};
+
+// FCFS Scheduling Algorithm
+void find_fcfs(Process proc[], int n) {
+    // Initial process starts execution immediately
+    // Completion Time = Arrival Time + Burst Time (First process only)
+    proc[0].completion_time = proc[0].arrival_time + proc[0].burst_time;
+    // Turnaround Time = Completion Time - Arrival Time
+    proc[0].turnaround_time = proc[0].completion_time - proc[0].arrival_time;
+    // Waiting Time = Turnaround Time - Burst Time
+    proc[0].waiting_time = proc[0].turnaround_time - proc[0].burst_time;
+
+    for (int i = 1; i < n; i++) {
+        // Use max() to ensure the CPU does not execute before the process arrives this prevents incorrect completion time
+        // Completion Time = max(Previous Completion Time, Arrival Time) + Burst Time
+        proc[i].completion_time = max(proc[i - 1].completion_time, proc[i].arrival_time) + proc[i].burst_time;
+        // Turnaround Time = Completion Time - Arrival Time
+        proc[i].turnaround_time = proc[i].completion_time - proc[i].arrival_time;
+        // Waiting Time = Turnaround Time - Burst Time
+        proc[i].waiting_time = proc[i].turnaround_time - proc[i].burst_time;
+    }
+}
+
+void print_fcfs(const Process proc[], int n) {
+    cout << "FCFS Scheduling:" << endl;
+    cout << "PID\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time" << endl;
+    for (int i = 0; i < n; i++) {
+        cout << proc[i].pid << "\t" << proc[i].arrival_time << "\t\t" << proc[i].burst_time
+            << "\t\t" << proc[i].completion_time << "\t\t" << proc[i].turnaround_time
+            << "\t\t" << proc[i].waiting_time << endl;
+    }
+}
+
+// SJF Scheduling Algorithm (Preemptive)
+void find_sjf(Process proc[], int n) {
+    vector<int> remaining_time(n);//we don't need vectors but i thought your code had vectors and I started with sjf its the same both ways. 
+    for (int i = 0; i < n; i++) {
+        remaining_time[i] = proc[i].burst_time;
+        proc[i].completion_time = 0;
+    }
+
+    int current_time = 0, complete = 0, shortest = 0;
+    bool found_process;
+
+    while (complete < n) {
+        int min_burst = 9999;
+        found_process = false;
+
+        for (int i = 0; i < n; i++) {
+            if (proc[i].arrival_time <= current_time && remaining_time[i] > 0 && remaining_time[i] < min_burst) {
+                min_burst = remaining_time[i];
+                shortest = i;
+                found_process = true;
+            }
+        }
+
+        // If no process is available, increment time explicitly to avoid infinite loops
+        if (!found_process) {
+            current_time++;
+            continue;
+        }
+
+        remaining_time[shortest]--;
+        current_time++;
+
+        if (remaining_time[shortest] == 0) {
+            complete++;
+            // Completion Time = Current Time (since SJF is preemptive)
+            proc[shortest].completion_time = current_time;
+            // Turnaround Time = Completion Time - Arrival Time
+            proc[shortest].turnaround_time = proc[shortest].completion_time - proc[shortest].arrival_time;
+            // Waiting Time = Turnaround Time - Burst Time
+            proc[shortest].waiting_time = proc[shortest].turnaround_time - proc[shortest].burst_time;
+        }
+    }
+}
+
+void print_sjf(const Process proc[], int n) {
+    cout << "SJF Scheduling:" << endl;
+    cout << "PID\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time" << endl;
+    for (int i = 0; i < n; i++) {
+        cout << proc[i].pid << "\t" << proc[i].arrival_time << "\t\t" << proc[i].burst_time
+            << "\t\t" << proc[i].completion_time << "\t\t" << proc[i].turnaround_time
+            << "\t\t" << proc[i].waiting_time << endl;
+    }
+}
+
+// Main Function with Default Process Data
+int main() {
+    const int n = 5;
+    // Input: Process details (PID, Arrival Time, Burst Time)
+    Process processes[n] = {
+        {1, 0, 5}, // Process 1: Arrival Time = 0, Burst Time = 5 and etc. 
+        {2, 1, 3},
+        {3, 2, 2},
+        {4, 3, 4},
+        {5, 4, 1}
+    };
+
+    // Create copies of the process array for both algorithms
+    Process fcfs_processes[n], sjf_processes[n];
+    for (int i = 0; i < n; i++) {
+        fcfs_processes[i] = processes[i];
+        sjf_processes[i] = processes[i];
+    }
+
+    // Run and display FCFS scheduling
+    find_fcfs(fcfs_processes, n);
+    cout << "\n";
+    print_fcfs(fcfs_processes, n);
+    cout << "\n";
+
+    // Run and display SJF scheduling
+    find_sjf(sjf_processes, n);
+    print_sjf(sjf_processes, n);
+
+    return 0;
+}
